@@ -249,13 +249,13 @@ config LIBFREELIBC
 In `include/uk/syscall_nrs.h`:
 
 ```c
-#define SYS_shreya_speaks 9001
+#define SYS_shaurya_speaks 9001
 ```
 
 In `lib/uk/syscall/syscall.c`:
 
 ```c
-long sys_shreya_speaks(void) {
+long sys_shaurya_speaks(void) {
     printf("Custom syscall hit!\n");
     return 0;
 }
@@ -264,8 +264,8 @@ long sys_shreya_speaks(void) {
 In the dispatcher:
 
 ```c
-case SYS_shreya_speaks:
-    return sys_shreya_speaks();
+case SYS_shaurya_speaks:
+    return sys_shaurya_speaks();
 ```
 
 ---
@@ -307,4 +307,4 @@ Confirm:
 * [ ] Add `write()`, `exit()` wrappers using `uk_syscall`
 * [ ] Provide headers (`unistd.h`, etc.)
 * [ ] Add simple application: `c-hello`
-* [ ] Add and test custom syscall (`shreya_speaks`)
+* [ ] Add and test custom syscall (`shaurya_speaks`)

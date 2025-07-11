@@ -57,6 +57,8 @@
 #include <string.h>
 #include <wchar.h>
 #include <printf.h>
+#include <limits.h>
+#include <inttypes.h>
 
 #include <stdarg.h>
 #include "xlocale_private.h"

@@ -41,6 +41,7 @@
 #include "un-namespace.h"
 #include "local.h"
 #include "libc_private.h"
+#include <stdint.h>
 
 /*
  * MT-safe version

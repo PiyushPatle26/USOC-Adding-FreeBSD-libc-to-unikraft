@@ -52,6 +52,8 @@
 #include <math.h>
 #include "floatio.h"
 #include "gdtoa.h"
+#include <inttypes.h>
+#include <limits.h> 
 
 #define	DEFPREC		6
 

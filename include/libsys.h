@@ -1,3 +1,4 @@
+#include <stddef.h>
 #ifndef _LIBSYS_H_
 #define _LIBSYS_H_
 

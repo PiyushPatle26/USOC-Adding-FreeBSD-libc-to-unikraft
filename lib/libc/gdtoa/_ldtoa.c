@@ -34,6 +34,7 @@
 #include "../stdio/floatio.h"
 #include "fpmath.h"
 #include "gdtoaimp.h"
+#include <sys/cdefs.h>
 
 /*
  * ldtoa() is a wrapper for gdtoa() that makes it smell like dtoa(),

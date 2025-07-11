@@ -50,7 +50,7 @@ abort(void)
 	 */
 	if (__cleanup)
 		(*__cleanup)();
-
+`
 	sigfillset(&act.sa_mask);
 	/*
 	 * Don't block SIGABRT to give any handler a chance; we ignore

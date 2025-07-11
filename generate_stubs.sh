@@ -1,17 +1,16 @@
 #!/bin/bash
 
-# Extract symbols
+
 nm build/libc_minimal.a | grep ' U ' | awk '{print $2}' | sort -u > undefined_symbols.txt
 nm build/libc_minimal.a | grep ' T ' | awk '{print $3}' | sort -u > defined_symbols.txt
 
-# Find undefined symbols
 comm -23 undefined_symbols.txt defined_symbols.txt > to_stub_symbols.txt
 
-# Filter symbols we care to stub
+
 grep -E '_pthread_|_spin|__cxa_|__isthreaded|__stdio_cancel|_once|_exit|_thread_autoinit|___pthread_cleanup|__error|__d2b|__freedtoa|malloc|reallocf|memchr|memmove|raise|sigaction|__rv_alloc|__nrv_alloc|__tens_|__multadd|__cmp|__lshift|__quorem|__Bfree|__flt_rounds|__fpclassifyd|__get_|__set_|__xlocale_|strncpy|ffs|getdtablesize|_read|_write|_close|lseek' \
   to_stub_symbols.txt > final_stubs.txt
 
-# Create stub source with required headers
+
 {
   echo "// Auto-generated stubs"
   echo "#include <stddef.h>"  # for size_t
@@ -19,7 +18,7 @@ grep -E '_pthread_|_spin|__cxa_|__isthreaded|__stdio_cancel|_once|_exit|_thread_
   echo ""
 } > stubs.c
 
-# Check if __isthreaded is already defined
+
 has_isthreaded=$(nm build/libc_minimal.a | grep ' T ' | awk '{print $3}' | grep -w __isthreaded)
 
 while read sym; do

@@ -1,0 +1,235 @@
+#  libfreebsd-libc Makefile.uk
+#
+#  Authors: [Your Name]
+#
+#  Copyright (c) 2024, [Your Organization]. All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from
+#     this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+################################################################################
+# This will reserve space within `uk_tls` for a **pointer** to struct _reent
+# Please refer to ./arch/Makefile.rules for more details.
+# In our case, 16 bytes is sufficient to also cover for the minimum size required by ARM.
+################################################################################
+ifeq ($(CONFIG_LIBFREEBSDLIBC),y)
+$(eval $(call ukarch_tls_tcb_reserve,16))
+endif
+
+################################################################################
+# Library registration
+################################################################################
+$(eval $(call addlib_s,libfreebsdlibc,$(CONFIG_LIBFREEBSDLIBC)))
+
+################################################################################
+# Library includes
+################################################################################
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/sys
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stdio
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stdlib
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/string
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/unistd
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/ctype
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/endian
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/limits
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/locale
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stddef
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stdbool
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stdalign
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/strings
+
+CINCLUDES-$(CONFIG_LIBFREEBSDLIBC)   += $(LIBFREEBSDLIBC_COMMON_INCLUDES-y)
+CXXINCLUDES-$(CONFIG_LIBFREEBSDLIBC) += $(LIBFREEBSDLIBC_COMMON_INCLUDES-y)
+
+################################################################################
+# Global flags
+################################################################################
+LIBFREEBSDLIBC_GLOBAL_FLAGS-y  += -DMISSING_SYSCALL_NAMES -DMALLOC_PROVIDED
+LIBFREEBSDLIBC_GLOBAL_FLAGS-y  += -D_POSIX_REALTIME_SIGNALS
+LIBFREEBSDLIBC_GLOBAL_FLAGS-$(CONFIG_LIBFREEBSDLIBC_WANT_IO_C99_FORMATS) += -D_WANT_IO_C99_FORMATS
+LIBFREEBSDLIBC_GLOBAL_FLAGS-$(CONFIG_LIBFREEBSDLIBC_LINUX_ERRNO_EXTENSIONS) += -D__LINUX_ERRNO_EXTENSIONS__
+ifeq ($(CONFIG_ARCH_ARM_64),y)
+LIBFREEBSDLIBC_GLOBAL_FLAGS-y  += -D_LDBL_EQ_DBL
+LIBFREEBSDLIBC_GLOBAL_FLAGS-y  += -D_HAVE_LONG_DOUBLE
+endif
+ifeq ($(CONFIG_ARCH_X86_64),y)
+LIBFREEBSDLIBC_GLOBAL_FLAGS-y  += -D_LDBL_EQ_DBL
+LIBFREEBSDLIBC_GLOBAL_FLAGS-y  += -D_HAVE_LONG_DOUBLE
+endif
+
+CFLAGS-$(CONFIG_LIBFREEBSDLIBC)   += $(LIBFREEBSDLIBC_GLOBAL_FLAGS-y)
+CXXFLAGS-$(CONFIG_LIBFREEBSDLIBC) += $(LIBFREEBSDLIBC_GLOBAL_FLAGS-y)
+
+# Suppress some warnings to make the build process look neater
+LIBFREEBSDLIBC_SUPPRESS_FLAGS-y += \
+-Wno-unused-parameter -Wno-unused-variable -Wno-nonnull				\
+-Wno-unused-but-set-variable -Wno-unused-label 					\
+-Wno-unused-function -Wno-missing-field-initializers -Wno-uninitialized		\
+-Wno-array-bounds -Wno-pointer-sign -Wno-unused-value				\
+-Wno-unused-macros -Wno-parentheses -Wno-implicit-function-declaration		\
+-Wno-missing-braces -Wno-endif-labels -Wno-unused-but-set-variable		\
+-Wno-type-limits -Wno-sign-compare
+LIBFREEBSDLIBC_SUPPRESS_FLAGS-$(call have_gcc) += -Wno-maybe-uninitialized
+LIBFREEBSDLIBC_SUPPRESS_FLAGS-$(call gcc_version_ge,6,0) += -Wno-misleading-indentation
+LIBFREEBSDLIBC_SUPPRESS_FLAGS-$(call gcc_version_ge,6,0) += -Wno-shift-negative-value
+LIBFREEBSDLIBC_SUPPRESS_FLAGS-$(call gcc_version_ge,7,0) += -Wno-implicit-fallthrough
+LIBFREEBSDLIBC_SUPPRESS_FLAGS-$(call have_clang) += -Wno-deprecated-non-prototype
+
+LIBFREEBSDLIBC_FLAGS			+= -ffreestanding
+LIBFREEBSDLIBC_NO_BUILTINS		+= -D__NO_SYSCALLS__ -fno-builtin
+
+LIBFREEBSDLIBC_CFLAGS-y   += $(LIBFREEBSDLIBC_SUPPRESS_FLAGS-y) $(LIBFREEBSDLIBC_FLAGS) $(LIBFREEBSDLIBC_NO_BUILTINS)
+LIBFREEBSDLIBC_CXXFLAGS-y += $(LIBFREEBSDLIBC_SUPPRESS_FLAGS-y) $(LIBFREEBSDLIBC_FLAGS) $(LIBFREEBSDLIBC_NO_BUILTINS)
+
+################################################################################
+# Glue code - Interface between FreeBSD libc and Unikraft
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/glue/plat.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/glue/syscall.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/glue/libc_start1.c
+
+################################################################################
+# Startup and initialization
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/glue/libc_private.h
+
+################################################################################
+# System calls
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/write.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/read.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/open.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/close.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/fork.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/fsync.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/lstat.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/lockf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/send.c
+
+################################################################################
+# Standard I/O functions
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/printf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vfprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/sprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/snprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vsprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vsnprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vasprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/scanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vfscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vsscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/puts.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/putchar.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/getchar.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/gets.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/getc.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fgetc.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fputc.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fgets.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fputs.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fread.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fwrite.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fopen.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fclose.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fseek.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/ftell.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fflush.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fmemopen.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/funopen.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/freopen.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fgetpos.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fileno.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/ferror.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fpurge.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fwide.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fwalk.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fvwrite.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/findfp.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/setbuf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/wbuf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/stdio.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/local.h
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/printfcommon.h
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_float.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_int.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_quote.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_str.c
+
+################################################################################
+# Standard library functions
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdlib/exit.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdlib/abort.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdlib/abs.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdlib/system.c
+
+################################################################################
+# String functions
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/strlen.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/strcpy.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/strcat.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/strchr.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/strncpy.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/strnlen.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/strerror.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/stpcpy.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/stpncpy.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/mempcpy.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/string/memrchr.c
+
+################################################################################
+# Additional stdio functions (wide character support)
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fgetwc.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fputwc.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/getwc.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/getwchar.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/putwc.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/putw.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fgetln.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fwprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vfwprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vfwscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vwprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vwscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/wprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/wscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/swscanf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vswprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vswscanf.c
+
+################################################################################
+# Additional stdio functions (miscellaneous)
+################################################################################
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/dprintf.c
+LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/_flock_stub.c

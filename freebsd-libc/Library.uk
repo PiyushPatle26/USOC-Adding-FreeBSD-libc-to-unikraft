@@ -1,0 +1,5 @@
+name        := "freebsd-libc"
+description := "FreeBSD C standard library implementation for Unikraft"
+homepage    := "https://www.freebsd.org/"
+license     := "BSD-3-Clause"
+version     := 14.0 

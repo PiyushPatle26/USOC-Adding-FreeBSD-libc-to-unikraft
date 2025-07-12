@@ -95,4 +95,4 @@ if LIBFREEBSDLIBC
 			Enable static linking support for FreeBSD libc.
 			This allows the library to be statically linked
 			into applications.
-endif 
+endif

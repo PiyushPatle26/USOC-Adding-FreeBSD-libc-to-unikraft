@@ -44,8 +44,10 @@ endif
 $(eval $(call addlib_s,libfreebsdlibc,$(CONFIG_LIBFREEBSDLIBC)))
 
 ################################################################################
-# Library includes
+# Library includes and flags
 ################################################################################
+LIBFREEBSDLIBC_CFLAGS-y += -D__UNIKRAFT__
+
 LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include
 LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/sys
 LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stdio
@@ -60,6 +62,7 @@ LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stddef
 LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stdbool
 LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/stdalign
 LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/include/strings
+LIBFREEBSDLIBC_COMMON_INCLUDES-y     += -I$(LIBFREEBSDLIBC_BASE)/src
 
 CINCLUDES-$(CONFIG_LIBFREEBSDLIBC)   += $(LIBFREEBSDLIBC_COMMON_INCLUDES-y)
 CXXINCLUDES-$(CONFIG_LIBFREEBSDLIBC) += $(LIBFREEBSDLIBC_COMMON_INCLUDES-y)
@@ -135,10 +138,6 @@ LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/sys/send.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/printf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vfprintf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vprintf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/sprintf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/snprintf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vsprintf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vsnprintf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vasprintf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fprintf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/scanf.c
@@ -170,19 +169,8 @@ LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fileno.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/ferror.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fpurge.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fwide.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fwalk.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/fvwrite.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/findfp.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/setbuf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/wbuf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/stdio.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/local.h
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/printfcommon.h
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_float.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_int.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_quote.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/xprintf_str.c
 
 ################################################################################
 # Standard library functions
@@ -223,10 +211,6 @@ LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vfwscanf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vwprintf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vwscanf.c
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/wprintf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/wscanf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/swscanf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vswprintf.c
-LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/stdio/vswscanf.c
 
 ################################################################################
 # Additional stdio functions (miscellaneous)

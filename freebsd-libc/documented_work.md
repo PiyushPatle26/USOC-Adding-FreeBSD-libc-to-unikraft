@@ -33,13 +33,6 @@ unikernel/
 │       └── glue/               # Unikraft glue code
 │           ├── syscall.c       # System call interface
 │           └── plat.c          # Platform-specific code
-├── catalog-core/
-│   └── test-freebsd-libc/      # Test application
-│       ├── main.c              # Test application source
-│       ├── Config.uk           # Application configuration
-│       ├── Makefile.uk         # Application build config
-│       ├── Makefile            # Build script
-│       └── setup.sh            # Setup script
 └── freebsd-libc/               # Original FreeBSD libc source
 ```
 
@@ -328,30 +321,6 @@ The library follows Unikraft's build system conventions:
 **5. Terminal Size Issues**
 - **Error**: `Your display is too small to run Menuconfig!`
 - **Solution**: Copy existing `.config` from working applications
-
-## Future Enhancements
-
-### Planned Improvements
-
-1. **Complete Function Coverage**
-   - Add missing stdio functions (fopen, fclose, etc.)
-   - Implement file I/O operations
-   - Add memory management functions (malloc, free)
-
-2. **Performance Optimization**
-   - Optimize string operations
-   - Improve printf performance
-   - Add caching for frequently used operations
-
-3. **Testing Framework**
-   - Add comprehensive test suite
-   - Performance benchmarks
-   - Compatibility tests with existing applications
-
-4. **Documentation**
-   - API documentation
-   - Migration guide from other libc implementations
-   - Performance comparison with other libc implementations
 
 ## Conclusion
 

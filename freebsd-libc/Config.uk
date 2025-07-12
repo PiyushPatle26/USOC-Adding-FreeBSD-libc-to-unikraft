@@ -1,11 +1,20 @@
-# hidden
+# FreeBSD libc library for Unikraft
+# This library provides FreeBSD's C standard library implementation
+
+# Hidden configuration for internal use
 config LIBFREEBSDLIBM
 	bool
 	default n
 
+# Main FreeBSD libc configuration
 menuconfig LIBFREEBSDLIBC
-	bool "libfreebsd-libc - FreeBSD C standard library"
+	bool "FreeBSD C standard library (libfreebsd-libc)"
 	default n
+	help
+		FreeBSD's C standard library implementation for Unikraft.
+		This library provides a complete implementation of the C standard
+		library based on FreeBSD's libc, offering compatibility with
+		FreeBSD applications and system calls.
 	select HAVE_LIBC
 	select LIBFREEBSDLIBM if LIBFREEBSDLIBC
 	select LIBUKALLOC
@@ -15,18 +24,75 @@ menuconfig LIBFREEBSDLIBC
 	select LIBUKSCHED_TCB_INIT
 	select LIBPOSIX_PROCESS
 	select LIBPOSIX_USER
+	select LIBPOSIX_ENVIRON
+	select LIBPOSIX_FD
+	select LIBPOSIX_FDTAB
+	select LIBPOSIX_FDIO
+	select LIBPOSIX_PIPE
+	select LIBPOSIX_POLL
+	select LIBPOSIX_FUTEX
+	select LIBPOSIX_TTY
+	select LIBPOSIX_TIME
+	select LIBUKALLOCBBUDDY
+	select LIBUKARGPARSE
+	select LIBUKATOMIC
+	select LIBUKBITOPS
+	select LIBUKSTREAMBUF
+	select LIBUKBOOT
+	select LIBUKBOOT_MAIN
+	select LIBUKCONSOLE
+	select LIBUKDEBUG
+	select LIBUKFILE
+	select LIBUKLIBID
+	select LIBUKINTCTLR
+	select LIBUKLOCK
+	select LIBUKMMAP
+	select LIBUKSCHED
+	select LIBUKSCHEDCOOP
+	select LIBUKTIMECONV
+	select LIBUKALLOCSTACK
+	select LIBCONTEXT
+	select LIBNS16550
+	select LIBVGACONS
+	select LIBUKINTCTLR_XPIC
 	select FPSIMD if ARCH_ARM_64
 
 if LIBFREEBSDLIBC
 	config LIBFREEBSDLIBC_WANT_IO_C99_FORMATS
 		bool "Use C99 IO formats"
 		default n
+		help
+			Enable C99-compliant IO format specifiers.
+			This option enables support for additional format
+			specifiers introduced in C99.
 
 	config LIBFREEBSDLIBC_LINUX_ERRNO_EXTENSIONS
 		bool "Use Linux errno extensions"
 		default n
+		help
+			Enable Linux-compatible errno extensions.
+			This provides additional error codes for better
+			Linux application compatibility.
 
 	config LIBFREEBSDLIBC_CRYPT
 		bool "Enable crypt() and crypt_r() functions"
 		default y
+		help
+			Enable cryptographic functions crypt() and crypt_r().
+			These functions are used for password hashing.
+
+	config LIBFREEBSDLIBC_DEBUG
+		bool "Enable debug output"
+		default n
+		help
+			Enable debug output for FreeBSD libc functions.
+			This is useful for development and troubleshooting.
+
+	config LIBFREEBSDLIBC_STATIC_LINKING
+		bool "Static linking support"
+		default y
+		help
+			Enable static linking support for FreeBSD libc.
+			This allows the library to be statically linked
+			into applications.
 endif 

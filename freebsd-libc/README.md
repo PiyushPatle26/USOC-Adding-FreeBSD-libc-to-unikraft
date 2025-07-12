@@ -70,14 +70,3 @@ This library depends on the following Unikraft libraries:
 - `LIBPOSIX_PROCESS`: POSIX process functions
 - `LIBPOSIX_USER`: POSIX user functions
 
-## License
-
-This library is licensed under the BSD-3-Clause license, same as FreeBSD libc.
-
-## Contributing
-
-When contributing to this library:
-1. Follow the existing code style
-2. Add appropriate tests
-3. Update documentation as needed
-4. Ensure compatibility with Unikraft's build system 

@@ -1,40 +1,50 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-/*
- * Authors: Simon Kuenzer <simon.kuenzer@neclab.eu>
- *
- * Copyright (c) 2020, NEC Europe Ltd., NEC Corporation. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
+#include <uk/syscall.h>
+#include <uk/plat/syscall.h>
+#include <errno.h>
 #include <uk/config.h>
 #if CONFIG_LIBSYSCALL_SHIM
 #include <stdarg.h>
-#include <uk/syscall.h>
+
+int uk_sys_write(int fd, const void *buf, size_t count)
+{
+    return uk_syscall_r_write(fd, buf, count);
+}
+
+int uk_sys_read(int fd, void *buf, size_t count)
+{
+    return uk_syscall_r_read(fd, buf, count);
+}
+
+int uk_sys_open(const char *pathname, int flags, mode_t mode)
+{
+    return uk_syscall_r_open(pathname, flags, mode);
+}
+
+int uk_sys_close(int fd)
+{
+    return uk_syscall_r_close(fd);
+}
+
+int uk_sys_exit(int status)
+{
+    uk_syscall_r_exit(status);
+    return 0; /* Should never reach here */
+}
+
+/* Additional syscalls as needed */
+int uk_sys_fork(void)
+{
+    /* Unikraft doesn't support fork, return error */
+    errno = ENOSYS;
+    return -1;
+}
+
+int uk_sys_getpid(void)
+{
+    /* Return a dummy PID for now */
+    return 1;
+} 
+
 
 long syscall(long num, ...)
 {

@@ -16,17 +16,22 @@ $(eval $(call fetch,libfreebsdlibc,$(FREEBSDLIBC_URL)))
 $(eval $(call patch,libfreebsdlibc,$(FREEBSDLIBC_PATCHDIR),freebsd-src-main))
 
 FREEBSDLIBC_SUBDIR := freebsd-src-main
+FREEBSDLIBC_SRCDIR := $(LIBFREEBSDLIBC_ORIGIN)/$(FREEBSDLIBC_SUBDIR)
 FREEBSDLIBC_LIBCDIR := $(LIBFREEBSDLIBC_ORIGIN)/$(FREEBSDLIBC_SUBDIR)/lib/libc
 FREEBSDLIBC_LIBSYSDIR := $(LIBFREEBSDLIBC_ORIGIN)/$(FREEBSDLIBC_SUBDIR)/lib/libsys
 
 ################################################################################
 # Includes (stdio, string, and all needed for printf and string functions)
 ################################################################################
-# Correct order: source root, sys/x86/include, sys/sys, then the rest
-LIBFREEBSDLIBC_COMMON_INCLUDES-y := -I$(FREEBSDLIBC_SRCDIR)
-LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/amd64/include
-LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/x86/include
+# Correct order: FreeBSD main include first, then sys headers
+LIBFREEBSDLIBC_COMMON_INCLUDES-y := -I$(FREEBSDLIBC_SRCDIR)/include
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/sys
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/x86/include
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/amd64/include
+# Map machine to amd64 for x86_64 architecture
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/amd64/include/machine
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)
 # FreeBSD libc specific includes
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/include
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/sys
@@ -35,11 +40,10 @@ LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/stdlib
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/string
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/csu
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(LIBFREEBSDLIBC_BASE)/include
-LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(LIBFREEBSDLIBC_LIBSYSDIR)
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBSYSDIR)
 
 # FreeBSD system headers (for stdarg.h, stdint.h, etc.)
-FREEBSDLIBC_SRCDIR := $(LIBFREEBSDLIBC_ORIGIN)/$(FREEBSDLIBC_SUBDIR)
-LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/x86/include
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/x86
 # Additional include paths for x86 architecture
 # (already added sys/x86/include and sys/amd64/include above)

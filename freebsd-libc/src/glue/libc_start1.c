@@ -1,7 +1,6 @@
 #include <uk/plat/bootstrap.h>
 #include <uk/plat/console.h>
 #include <uk/plat/memory.h>
-#include <uk/plat/thread.h>
 
 extern int main(int argc, char *argv[]);
 extern void uk_plat_init(void);

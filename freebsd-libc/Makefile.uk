@@ -23,8 +23,11 @@ FREEBSDLIBC_LIBSYSDIR := $(LIBFREEBSDLIBC_ORIGIN)/$(FREEBSDLIBC_SUBDIR)/lib/libs
 ################################################################################
 # Includes (stdio, string, and all needed for printf and string functions)
 ################################################################################
-# Correct order: FreeBSD main include first, then sys headers
-LIBFREEBSDLIBC_COMMON_INCLUDES-y := -I$(FREEBSDLIBC_SRCDIR)/include
+# Priority order: Our local freebsd-libc headers first, then FreeBSD source headers
+LIBFREEBSDLIBC_COMMON_INCLUDES-y := -I$(LIBFREEBSDLIBC_BASE)/include
+# Automatically include compatibility header for all compilation units
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -include $(LIBFREEBSDLIBC_BASE)/include/freebsdlibc_compat.h
+LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/include
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/sys
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_SRCDIR)/sys/x86/include
@@ -39,7 +42,6 @@ LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/stdio
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/stdlib
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/string
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBCDIR)/csu
-LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(LIBFREEBSDLIBC_BASE)/include
 LIBFREEBSDLIBC_COMMON_INCLUDES-y += -I$(FREEBSDLIBC_LIBSYSDIR)
 
 # FreeBSD system headers (for stdarg.h, stdint.h, etc.)
@@ -69,7 +71,7 @@ CXXFLAGS-$(CONFIG_LIBFREEBSDLIBC) += $(LIBFREEBSDLIBC_CFLAGS-y)
 # FreeBSD libc sources (for printf, puts, and all string functions)
 ################################################################################
 # Startup code (CSU - C Startup)
-LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/csu/libc_start1.c
+# LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/csu/libc_start1.c  # Use our custom glue version instead
 
 # Stdio functions
 LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/stdio/printf.c
@@ -97,18 +99,19 @@ LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/string/memchr.c
 
 # Stdlib functions
 LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/stdlib/exit.c
-LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/stdlib/abort.c
-LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/stdlib/atexit.c
+#LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/stdlib/abort.c  # Too complex for now
+#LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/stdlib/atexit.c # Too complex for now
 
 # System calls (basic ones)
 LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/sys/write.c
 LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/sys/read.c
 LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/sys/open.c
 LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/sys/close.c
-LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBCDIR)/sys/exit.c
 
 # Libsys (syscall interface)
-LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBSYSDIR)/_libsys.c
+# LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBSYSDIR)/_libsys.c
+LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBSYSDIR)/__error.c
+# LIBFREEBSDLIBC_SRCS-y += $(FREEBSDLIBC_LIBSYSDIR)/libc_stubs.c
 
 # Unikraft glue code
 LIBFREEBSDLIBC_SRCS-y += $(LIBFREEBSDLIBC_BASE)/src/glue/plat.c

@@ -1,6 +1,0 @@
-# Test application for FreeBSD libc
-$(eval $(call addlib_s,apptestfreebsdlibc,$(CONFIG_APP_TEST_FREEBSDLIBC)))
-
-APP_TEST_FREEBSDLIBC_SRCS-y += $(APP_TEST_FREEBSDLIBC_BASE)/test_freebsd_libc.c
-
-APP_TEST_FREEBSDLIBC_CINCLUDES-y += -I$(APP_TEST_FREEBSDLIBC_BASE)/include

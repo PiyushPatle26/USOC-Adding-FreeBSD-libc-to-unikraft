@@ -1,7 +1,7 @@
 #include <uk/plat/console.h>
 #include <uk/plat/time.h>
 #include <uk/plat/memory.h>
-#include <uk/plat/thread.h>
+// #include <uk/plat/thread.h>  // Thread support not needed for basic hello world
 #include <uk/plat/syscall.h>
 #include <uk/plat/bootstrap.h>
 #include <errno.h>

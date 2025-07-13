@@ -6,6 +6,7 @@
 #include <uk/plat/console.h>
 #include <uk/plat/time.h>
 #include <uk/plat/memory.h>
+#include <sys/types.h>
 
 /* Platform-specific functions */
 extern void uk_plat_init(void);
